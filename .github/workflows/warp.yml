@@ -1,0 +1,30 @@
+name: Generate WARP WireGuard Config
+
+on:
+  workflow_dispatch: # Ручной запуск
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3 python3-pip
+          pip3 install pyqrcode pypng
+
+      - name: Run WARP generator
+        run: |
+          curl -sSL https://raw.githubusercontent.com/ViRb3/wgcf/master/wgcf.sh -o wgcf.sh
+          chmod +x wgcf.sh
+          ./wgcf.sh register --accept-tos
+          ./wgcf.sh generate
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: wireguard-warp
+          path: wgcf-profile.conf
